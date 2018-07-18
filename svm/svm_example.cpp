@@ -44,7 +44,9 @@ int main(int, char**)
             Mat sampleMat = (Mat_<float>(1,2) << j,i);
             float response = svm->predict(sampleMat);
             // draw diff color for each classes
-            image.at<Vec3b>(i,j)  = Vec3b(255/CLASSES * response,255/CLASSES * response, 255/CLASSES * response );
+            // image.at<Vec3b>(i,j)  = Vec3b(255/CLASSES * response,255/CLASSES * response, 255/CLASSES * response );
+
+            image.at<Vec3b>(i,j)  = Vec3b(255/CLASSES * response,255/CLASSES * response,255/CLASSES * response);
         }
     }
 
