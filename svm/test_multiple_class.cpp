@@ -11,6 +11,10 @@ using namespace std;
 // #define name_class[6] = {"neg", "motorbike", "bicycle", "car_s","car_l","walker" };
 // #define data_path = "/home/nam/data/data_khanh_4k5/single_img_resize/"
 // #define name_class[] = {"neg", "motorbike","walker"};
+
+string name_classes[] = { "neg", "car_s", "car_l"};
+int n_classes = sizeof(name_classes)/sizeof(string);
+
 vector< float > get_svm_detector( const Ptr< SVM >& svm );
 void convert_to_ml( const std::vector< Mat > & train_samples, Mat& trainData );
 void load_images( const String & dirname, vector< Mat > & img_lst, bool showImages );
@@ -124,6 +128,7 @@ void computeHOGs( const Size wsize, const vector< Mat > & img_lst, vector< Mat >
         }
     }
 }
+
 void test_trained_detector( String obj_det_filename, String test_dir, String videofilename )
 {
     cout << "Testing trained detector..." << endl;
@@ -148,6 +153,7 @@ void test_trained_detector( String obj_det_filename, String test_dir, String vid
         Mat img;
         if ( cap.isOpened() )
         {
+
             cap >> img;
             delay = 1;
         }
@@ -165,12 +171,17 @@ void test_trained_detector( String obj_det_filename, String test_dir, String vid
         hog.detectMultiScale( img, detections, foundWeights );
         for ( size_t j = 0; j < detections.size(); j++ )
         {
-            Scalar color = Scalar( 0, foundWeights[j] * foundWeights[j] * 200, 0 );
-            rectangle( img, detections[j], color, img.cols / 400 + 1 );
-            cout << detections[j].x << endl;
-            cout << detections[j].width << endl;
-            cout << detections[j].y << endl;
-            cout << detections[j].height << endl;
+          // Scalar color = Scalar( 0, foundWeights[j] * foundWeights[j] * 200, 0 );
+          Scalar color = Scalar( 255 - 255/(foundWeights[j] + 1), 255 / ( foundWeights[j] + 1), 0 );
+          // putText(img, name_classes[foundWeights[j]], Point2f(detections[j].x,detections[j].y), FONT_HERSHEY_PLAIN, 2,  color);
+          // putText(img, text, textOrg, fontFace, fontScale, Scalar::all(255), thickness, 8);
+          rectangle( img, detections[j], color, img.cols / 400 + 1 );
+          cout << j << "\t";
+          cout << foundWeights[j] << endl;
+          // cout << detections[j].x << endl;
+          // cout << detections[j].width << endl;
+          // cout << detections[j].y << endl;
+          // cout << detections[j].height << endl;
         }
         imshow( obj_det_filename, img );
         if( waitKey( delay ) == 27 )
@@ -184,60 +195,13 @@ void test_trained_detector( String obj_det_filename, String test_dir, String vid
 int main( int argc, char** argv )
 {
   string data_path = "/home/nam/data/data_khanh_4k5/single_img_resize/";
-  string name_classes[] = { "neg", "car_s", "car_l"};
-  int n_classes = sizeof(name_classes)/sizeof(string);
   String obj_det_filename = "car_64x128.xml";
 
-  Size image_size = Size(64,128);
-
-  vector< Mat > full_neg_lst, neg_lst, gradient_lst;
-  vector< int > labels;
-
-  clog << "load NEG";
-  load_images( data_path + name_classes[0], full_neg_lst, false );
-  clog << full_neg_lst.size()<< endl;
-  clog << "load NEG";
-  sample_neg( full_neg_lst, neg_lst, image_size);
-  int total_neg = neg_lst.size();
-
-  clog << "HOG NEG";
-  computeHOGs( image_size, neg_lst, gradient_lst, false );
-  labels.assign( total_neg, -1 );
-
-  for(int i = 1; i < n_classes; i++){
-    vector <Mat> pos_lst;
-    clog << "load "+ name_classes[i];
-    load_images( data_path + name_classes[i], pos_lst, false );
-
-    int total_each_class = pos_lst.size();
-
-    clog << "HOG "+ name_classes[i];
-    computeHOGs( image_size, pos_lst, gradient_lst, false );
-    labels.insert( labels.end(), total_each_class, i );
-  }
-
-  Mat train_data;
-  convert_to_ml( gradient_lst, train_data );
-
-
-  clog << "Training SVM...";
   Ptr< SVM > svm = SVM::create();
-  /* Default values to train SVM */
-  svm->setCoef0( 0.0 );
-  svm->setDegree( 3 );
-  svm->setTermCriteria( TermCriteria( CV_TERMCRIT_ITER + CV_TERMCRIT_EPS, 1000, 1e-3 ) );
-  svm->setGamma( 0 );
-  svm->setKernel( SVM::LINEAR );
-  svm->setNu( 0.5 );
-  svm->setP( 0.1 ); // for EPSILON_SVR, epsilon in loss function?
-  svm->setC( 0.01 ); // From paper, soft classifier
-  svm->setType( SVM::EPS_SVR ); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
-  svm->train( train_data, ROW_SAMPLE, labels );
-  clog << "...[done]" << endl;
 
   HOGDescriptor hog;
-  hog.winSize = image_size;
-  hog.setSVMDetector( get_svm_detector( svm ) );
-  hog.save( obj_det_filename );
+  hog.load(obj_det_filename);
+
+  test_trained_detector(obj_det_filename, "/home/nam/data/data_khanh_4k5/done/JPEGImages/", "" );
   return 0;
 }

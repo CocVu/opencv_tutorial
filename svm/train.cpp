@@ -19,8 +19,8 @@ using namespace cv::ml;
 
 int n_point = 5;
 
-float * blob_extract_feature(int Blob){
-
+float  blob_extract_feature(int Blob){
+  return (float)(Blob);
 }
 
 int main(int, char**)

@@ -123,6 +123,7 @@ void computeHOGs( const Size wsize, const vector< Mat > & img_lst, vector< Mat >
         }
     }
 }
+
 void test_trained_detector( String obj_det_filename, String test_dir, String videofilename )
 {
     cout << "Testing trained detector..." << endl;
@@ -169,7 +170,7 @@ void test_trained_detector( String obj_det_filename, String test_dir, String vid
             cout << detections[j].x << endl;
             cout << detections[j].width << endl;
             cout << detections[j].y << endl;
-            cout << detections[j].high << endl;
+            cout << detections[j].height << endl;
         }
         imshow( obj_det_filename, img );
         if( waitKey( delay ) == 27 )
@@ -178,6 +179,7 @@ void test_trained_detector( String obj_det_filename, String test_dir, String vid
         }
     }
 }
+
 int main( int argc, char** argv )
 {
     const char* keys =

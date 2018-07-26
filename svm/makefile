@@ -16,6 +16,9 @@ train_multiple: train_multiple_class.o
 	./train_multiple_class.o
 
 
+test_multiple: test_multiple_class.o
+	./test_multiple_class.o
+
 testHOG: test_HOG_SVM.o
 	./test_HOG_SVM.o
 
